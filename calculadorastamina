@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Stamina</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        h1 {
+            color: #2E7D32;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #424242;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fafafa;
+        }
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            background-color: white;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f1f8e9;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stamina-bar-container {
+            height: 35px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid #ccc;
+        }
+        .stamina-bar-bg {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: row-reverse;
+        }
+        .stamina-segment {
+            height: 100%;
+            position: relative;
+        }
+        .stamina-segment::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: rgba(0,0,0,0.3);
+        }
+        .stamina-segment:last-child::after {
+            display: none;
+        }
+        .stamina-green {
+            background-color: #2E7D32;
+            width: 7.14%;
+        }
+        .stamina-orange {
+            background-color: #EF6C00;
+            width: 54.76%;
+        }
+        .stamina-red {
+            background-color: #C62828;
+            width: 19.05%;
+        }
+        .stamina-black {
+            background-color: #212121;
+            width: 19.05%;
+        }
+        .stamina-progress {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
+        }
+        .time-display {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: #2E7D32;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: #D32F2F;
+            margin-top: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .details {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            display: none;
+            border-left: 4px solid #4CAF50;
+            transition: all 0.3s ease;
+        }
+        .details-title {
+            color: #4CAF50;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .details-title:hover {
+            color: #388E3C;
+        }
+        .details-title::before {
+            content: '►';
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+        .details.active + .details-title::before {
+            transform: rotate(90deg);
+        }
+        .time-result {
+            font-weight: 600;
+            margin: 8px 0;
+            padding: 8px 12px;
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border-left: 3px solid #4CAF50;
+        }
+        .time-result:first-child {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Stamina</h1>
+        
+        <div class="form-group">
+            <label for="currentStamina">Stamina Atual:</label>
+            <input type="text" id="currentStamina" placeholder="42:00" value="42:00" maxlength="5">
+            <div id="staminaError" class="error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="activity">Atividade:</label>
+            <select id="activity">
+                <option value="offline">Offline/Dormindo</option>
+                <option value="trainer">Atacando Trainer</option>
+                <option value="pz">Na Protection Zone</option>
+            </select>
+        </div>
+        
+        <button onclick="calculateStamina()">Calcular Tempo para Recuperação</button>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>Resultado:</h3>
+            <div class="stamina-bar-container">
+                <div class="stamina-bar-bg">
+                    <div class="stamina-segment stamina-green"></div>
+                    <div class="stamina-segment stamina-orange"></div>
+                    <div class="stamina-segment stamina-red"></div>
+                    <div class="stamina-segment stamina-black"></div>
+                </div>
+                <div id="staminaProgress" class="stamina-progress"></div>
+            </div>
+            <div id="timeDisplay" class="time-display"></div>
+            <div id="mainResult"></div>
+            
+            <div class="details-title" onclick="toggleDetails()">Mostrar detalhes</div>
+            <div id="details" class="details"></div>
+        </div>
+    </div>
+
+    <script>
+        // Formatação automática do campo de tempo
+        document.getElementById('currentStamina').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            let formatted = '';
+            
+            if (value.length > 4) {
+                value = value.substring(0, 4);
+            }
+            
+            if (value.length > 2) {
+                formatted = value.substring(0, 2) + ':' + value.substring(2);
+            } else {
+                formatted = value;
+            }
+            
+            this.value = formatted;
+            validateTimeInput(this.value);
+        });
+
+        function validateTimeInput(timeStr) {
+            const errorElement = document.getElementById('staminaError');
+            
+            if (timeStr.trim() === '') {
+                errorElement.textContent = 'Digite o tempo no formato HH:MM';
+                return false;
+            }
+            
+            if (!/^\d{0,2}:?\d{0,2}$/.test(timeStr)) {
+                errorElement.textContent = 'Formato inválido. Use apenas números';
+                return false;
+            }
+            
+            if (!timeStr.includes(':')) {
+                errorElement.textContent = '';
+                return false;
+            }
+            
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0]) || 0;
+            const minutes = parseInt(parts[1]) || 0;
+            
+            if (hours < 0 || hours > 42) {
+                errorElement.textContent = 'Horas devem estar entre 00 e 42';
+                return false;
+            }
+            
+            if (minutes < 0 || minutes >= 60) {
+                errorElement.textContent = 'Minutos devem estar entre 00 e 59';
+                return false;
+            }
+            
+            if (hours === 42 && minutes !== 0) {
+                errorElement.textContent = 'Para 42 horas, os minutos devem ser 00';
+                return false;
+            }
+            
+            errorElement.textContent = '';
+            return true;
+        }
+
+        function parseTimeToMinutes(timeStr) {
+            if (!validateTimeInput(timeStr)) {
+                return null;
+            }
+            
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        function formatMinutesToTime(totalMinutes) {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        function getStaminaState(totalMinutes) {
+            if (totalMinutes >= 2340) return 'green';    // 39:00+
+            if (totalMinutes >= 840) return 'orange';    // 14:00-38:59
+            if (totalMinutes >= 480) return 'red';       // 08:00-13:59
+            return 'black';                              // 00:00-07:59
+        }
+
+        function calculateRecoveryTime(currentStamina, targetStamina, activity) {
+            const state = getStaminaState(currentStamina);
+            let regenRate;
+            
+            // Taxas de regeneração
+            if (state === 'green') {
+                regenRate = activity === 'pz' ? 5 : 6;
+            } else {
+                regenRate = (activity === 'trainer') ? 6 : 3;
+            }
+            
+            const minutesNeeded = targetStamina - currentStamina;
+            if (minutesNeeded <= 0) return 0;
+            
+            return minutesNeeded * regenRate;
+        }
+
+        function formatHoursMinutes(totalMinutes) {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            }
+            return `${minutes}m`;
+        }
+
+        function calculateStamina() {
+            document.getElementById('staminaError').textContent = '';
+            
+            const timeStr = document.getElementById('currentStamina').value;
+            const currentStamina = parseTimeToMinutes(timeStr);
+            
+            if (currentStamina === null || currentStamina > 2520) {
+                document.getElementById('staminaError').textContent = 'Valor inválido. Corrija o tempo.';
+                return;
+            }
+            
+            const activity = document.getElementById('activity').value;
+            const currentState = getStaminaState(currentStamina);
+            
+            // Calcular tempos para diferentes metas
+            const timeToFull = calculateRecoveryTime(currentStamina, 2520, activity);
+            let timeToGreen = 0;
+            
+            if (currentState !== 'green') {
+                timeToGreen = calculateRecoveryTime(currentStamina, 2340, activity);
+            }
+            
+            // Atualizar barra de progresso
+            const remainingPercentage = 100 - (currentStamina / 2520 * 100);
+            document.getElementById('staminaProgress').style.width = `${remainingPercentage}%`;
+            
+            // Exibir resultados principais
+            document.getElementById('timeDisplay').textContent = formatMinutesToTime(currentStamina);
+            
+            let mainResultHTML = `<div class="time-result">Tempo para stamina completa: ${formatHoursMinutes(timeToFull)}</div>`;
+            
+            if (currentState !== 'green') {
+                mainResultHTML += `<div class="time-result">Tempo para stamina verde: ${formatHoursMinutes(timeToGreen)}</div>`;
+            }
+            
+            document.getElementById('mainResult').innerHTML = mainResultHTML;
+            
+            // Detalhes (inicialmente ocultos)
+            const detailsHTML = `
+                <p><strong>Estado atual:</strong> ${currentState.toUpperCase()}</p>
+                <p><strong>Taxa de regeneração:</strong> 1 minuto a cada ${activity === 'pz' && currentState === 'green' ? 5 : 
+                    (activity === 'trainer' ? 6 : (currentState === 'green' ? 6 : 3))} minutos</p>
+                <p><strong>Stamina completa:</strong> 42:00 (${formatHoursMinutes(timeToFull)})</p>
+                ${currentState !== 'green' ? `<p><strong>Stamina verde (39:00):</strong> ${formatHoursMinutes(timeToGreen)}</p>` : ''}
+            `;
+            
+            document.getElementById('details').innerHTML = detailsHTML;
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function toggleDetails() {
+            const details = document.getElementById('details');
+            const title = document.querySelector('.details-title');
+            
+            if (details.style.display === 'none' || !details.style.display) {
+                details.style.display = 'block';
+                title.innerHTML = '▼ Ocultar detalhes';
+            } else {
+                details.style.display = 'none';
+                title.innerHTML = '► Mostrar detalhes';
+            }
+        }
+        
+        window.onload = calculateStamina;
+    </script>
+</body>
+</html>
