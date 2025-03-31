@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Imbuimentos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #8B0000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            font-weight: 500;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 0 5px 5px 5px;
+            border: 1px solid #ddd;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        button {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #A52A2A;
+        }
+        #result1, #result2, #result3 {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #FFF0F0;
+            display: none;
+        }
+        .item {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .item:before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+            color: #8B0000;
+        }
+        .best-option {
+            font-weight: bold;
+            color: #2E8B57;
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #E8F5E9;
+            border-radius: 4px;
+        }
+        .cost-summary {
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        .price-inputs {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .combination {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .combination.best {
+            border: 2px solid #2E8B57;
+            background-color: #E8F5E9;
+        }
+        .token-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .expandable {
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .expand-title {
+            color: #8B0000;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .expand-title:hover {
+            background-color: #e0e0e0;
+        }
+        .expand-title::before {
+            content: "";
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 6px 0 6px 8px;
+            border-color: transparent transparent transparent #8B0000;
+            margin-right: 10px;
+            transition: transform 0.2s ease;
+        }
+        .expandable.active .expand-title::before {
+            transform: rotate(90deg);
+        }
+        .expand-content {
+            display: none;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+        .expandable.active .expand-content {
+            display: block;
+        }
+        .tab-icon {
+            margin-right: 8px;
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            vertical-align: middle;
+        }
+        .item-icon {
+            margin-right: 8px;
+            width: 32px;
+            height: 32px;
+            vertical-align: middle;
+            object-fit: contain;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 5px;
+            color: #8B0000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .copy-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .copy-btn .copy-text::before {
+            content: "📋 ";
+        }
+        .copy-btn .copied-text::before {
+            content: "✓ ";
+        }
+        .copy-btn .copy-text {
+            display: inline;
+        }
+        .copy-btn .copied-text {
+            display: none;
+            color: #2E8B57;
+        }
+        .copy-btn.copied .copy-text {
+            display: none;
+        }
+        .copy-btn.copied .copied-text {
+            display: inline;
+        }
+        .item-name {
+            display: inline-flex;
+            align-items: center;
+        }
+        .monster-list {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+        }
+        @media (max-width: 600px) {
+            .monster-list {
+                columns: 1;
+                -webkit-columns: 1;
+                -moz-columns: 1;
+            }
+        }
+        .section-title {
+            margin: 25px 0 15px 0;
+            color: #8B0000;
+            font-size: 18px;
+        }
+        .hunting-spots {
+            margin-top: 5px;
+        }
+        .hunting-spots li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .hunting-spots a {
+            color: #8B0000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .hunting-spots a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Imbuimentos</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="openTab(event, 'vampirism')"><img src="https://www.tibiawiki.com.br/images/6/6e/Vampirism_%28Roubo_de_Vida%29.gif" class="tab-icon" alt="Vampirism"> Vampirism</div>
+        <div class="tab" onclick="openTab(event, 'void')"><img src="https://www.tibiawiki.com.br/images/4/40/Void_%28Roubo_de_Mana%29.gif" class="tab-icon" alt="Void"> Void</div>
+        <div class="tab" onclick="openTab(event, 'strike')"><img src="https://www.tibiawiki.com.br/images/1/14/Strike_%28Dano_Cr%C3%ADtico%29.gif" class="tab-icon" alt="Strike"> Strike</div>
+    </div>
+    
+    <!-- Tab 1: Vampirism -->
+    <div id="vampirism" class="tab-content active">
+        <h2><img src="https://www.tibiawiki.com.br/images/6/6e/Vampirism_%28Roubo_de_Vida%29.gif" class="tab-icon" alt="Vampirism" style="width: 48px; height: 48px;"> Vampirism</h2>
+        
+        <div class="price-inputs">
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/vampireTeeth.png" class="item-icon" alt="Vampire Teeth">
+                        Vampire Teeth
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Vampire Teeth')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="vampireTeethPrice" value="1.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Nightfiend" target="_blank">Nightfiend</a>: Roshamuul Prison, Roshamuul Valley</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Vampire" target="_blank">Vampire</a>: Edron Vampire Crypt, Darashia Vampire Crypt</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Vampire_Bride" target="_blank">Vampire Bride</a>: Edron Vampire Crypt, Vengoth Castle</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Vampire_Viscount" target="_blank">Vampire Viscount</a>: Drefia Vampire Crypt</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/bloodyPincers.png" class="item-icon" alt="Bloody Pincers">
+                        Bloody Pincers
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Bloody Pincers')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="bloodyPincersPrice" value="1.500">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Blood_Crab" target="_blank">Blood Crab</a>: Laguna Islands, Tiquanda Tar Pits</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Deepsea_Blood_Crab" target="_blank">Deepsea Blood Crab</a>: Seacrest Grounds, Sunken Mines</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Thanatursus" target="_blank">Thanatursus</a>: Forbidden Lands, Oramond Catacombs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/deadBrain.png" class="item-icon" alt="Piece of Dead Brain">
+                        Piece of Dead Brain
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Piece of Dead Brain')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="deadBrainPrice" value="2.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Braindeath" target="_blank">Braindeath</a>: Drefia Grim Reapers, Yalahar Cemetery</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Rage_Squid" target="_blank">Rage Squid</a>: Seacrest Grounds, Sunken Mines</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Squid_Warden" target="_blank">Squid Warden</a>: Seacrest Grounds, Sunken Mines</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/goldToken.png" class="item-icon" alt="Gold Token">
+                        Gold Token
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Gold Token')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="tokenPrice1" value="50.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Fontes de Gold Token</span>
+                        <div class="expand-content">
+                            <div class="monster-list">
+                                <ul>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Alptramun" target="_blank">Alptramun</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ancient_Spawn_of_Morgathla" target="_blank">Ancient Spawn of Morgathla</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Anomaly" target="_blank">Anomaly</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Eradicator" target="_blank">Eradicator</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Essence_Of_Malice" target="_blank">Essence Of Malice</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ghulosh" target="_blank">Ghulosh</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Gorzindel" target="_blank">Gorzindel</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Izcandar_the_Banished" target="_blank">Izcandar the Banished</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/King_Zelos" target="_blank">King Zelos</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Kroazur" target="_blank">Kroazur</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lady_Tenebris" target="_blank">Lady Tenebris</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lloyd" target="_blank">Lloyd</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Malofur_Mangrinder" target="_blank">Malofur Mangrinder</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Maxxenius" target="_blank">Maxxenius</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Mazzinor" target="_blank">Mazzinor</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Melting_Frozen_Horror" target="_blank">Melting Frozen Horror</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Outburst" target="_blank">Outburst</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Plagueroot" target="_blank">Plagueroot</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ravenous_Hunger" target="_blank">Ravenous Hunger</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Realityquake" target="_blank">Realityquake</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Rupture" target="_blank">Rupture</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Soul_of_Dragonking_Zyrtarch" target="_blank">Soul of Dragonking Zyrtarch</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Count_Of_The_Core" target="_blank">The Count Of The Core</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Enraged_Thorn_Knight" target="_blank">The Enraged Thorn Knight</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Last_Lore_Keeper" target="_blank">The Last Lore Keeper</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Sandking" target="_blank">The Sandking</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Souldespoiler" target="_blank">The Souldespoiler</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Source_Of_Corruption" target="_blank">The Source Of Corruption</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Baron_from_Below" target="_blank">The Baron from Below</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Duke_Of_The_Depths" target="_blank">The Duke Of The Depths</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_False_God" target="_blank">The False God</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Nightmare_Beast" target="_blank">The Nightmare Beast</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Scourge_of_Oblivion" target="_blank">The Scourge of Oblivion</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Time_Guardian" target="_blank">The Time Guardian</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Unarmored_Voidborn" target="_blank">The Unarmored Voidborn</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/World_Devourer" target="_blank">World Devourer</a></li>
+                                </ul>
+                            </div>
+                            <p><strong>Também obtido via:</strong> Tasks de caça e Market</p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="level1">Nível do Imbuimento:</label>
+            <select id="level1">
+                <option value="1">Nível 1 (Básico) <span class="imbu-level">25 Vampire Teeth</span></option>
+                <option value="2">Nível 2 (Intrincado) <span class="imbu-level">25 Vampire Teeth + 25 Bloody Pincers</span></option>
+                <option value="3">Nível 3 (Poderoso) <span class="imbu-level">25 Vampire Teeth + 25 Bloody Pincers + 5 Dead Brains</span></option>
+            </select>
+        </div>
+        
+        <button onclick="calculate(1)">Calcular Melhor Opção</button>
+        
+        <div id="result1">
+            <h3 class="section-title">Análise de Custo</h3>
+            <div id="requirements1"></div>
+            <div id="comparison1"></div>
+            <div id="bestOption1" class="best-option"><span class="best-text"></span></div>
+            <div id="totalCost1" class="cost-summary"><span class="total-text"></span></div>
+        </div>
+    </div>
+    
+    <!-- Tab 2: Void -->
+    <div id="void" class="tab-content">
+        <h2><img src="https://www.tibiawiki.com.br/images/4/40/Void_%28Roubo_de_Mana%29.gif" class="tab-icon" alt="Void" style="width: 48px; height: 48px;"> Void</h2>
+        
+        <div class="price-inputs">
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/ropeBelt.png" class="item-icon" alt="Rope Belt">
+                        Rope Belt
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Rope Belt')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="ropeBeltPrice" value="1.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Acolyte_of_the_Cult" target="_blank">Acolyte of the Cult</a>: Cult Cave (Liberty Bay), Yalahar Cult Cave</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Adept_of_the_Cult" target="_blank">Adept of the Cult</a>: Cult Cave (Liberty Bay), Yalahar Cult Cave</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Crypt_Defiler" target="_blank">Crypt Defiler</a>: Drefia Grim Reapers, Yalahar Cemetery</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Dark_Monk" target="_blank">Dark Monk</a>: Dark Cathedral, Edron Hero Cave</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Grave_Robber" target="_blank">Grave Robber</a>: Drefia Grim Reapers, Yalahar Cemetery</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Monk" target="_blank">Monk</a>: Dark Cathedral, Edron Hero Cave</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Novice_of_the_Cult" target="_blank">Novice of the Cult</a>: Cult Cave (Liberty Bay), Yalahar Cult Cave</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Nomad" target="_blank">Nomad</a>: Darama Desert, Ankrahmun Tombs</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Nomad_(Blue)" target="_blank">Nomad (Blue)</a>: Darama Desert, Ankrahmun Tombs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/silencerClaws.png" class="item-icon" alt="Silencer Claws">
+                        Silencer Claws
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Silencer Claws')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="silencerClawsPrice" value="1.500">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Enfeebled_Silencer" target="_blank">Enfeebled Silencer</a>: Roshamuul Prison, Roshamuul Valley</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Silencer" target="_blank">Silencer</a>: Oramond Catacombs, Roshamuul Prison</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/grimeleech.png" class="item-icon" alt="Grimeleech Wings">
+                        Grimeleech Wings
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Grimeleech Wings')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="grimeleechWingsPrice" value="2.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Grimeleech" target="_blank">Grimeleech</a>: Roshamuul Valley, Roshamuul Prison</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/goldToken.png" class="item-icon" alt="Gold Token">
+                        Gold Token
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Gold Token')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="tokenPrice2" value="50.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Fontes de Gold Token</span>
+                        <div class="expand-content">
+                            <div class="monster-list">
+                                <ul>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Alptramun" target="_blank">Alptramun</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ancient_Spawn_of_Morgathla" target="_blank">Ancient Spawn of Morgathla</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Anomaly" target="_blank">Anomaly</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Eradicator" target="_blank">Eradicator</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Essence_Of_Malice" target="_blank">Essence Of Malice</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ghulosh" target="_blank">Ghulosh</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Gorzindel" target="_blank">Gorzindel</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Izcandar_the_Banished" target="_blank">Izcandar the Banished</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/King_Zelos" target="_blank">King Zelos</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Kroazur" target="_blank">Kroazur</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lady_Tenebris" target="_blank">Lady Tenebris</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lloyd" target="_blank">Lloyd</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Malofur_Mangrinder" target="_blank">Malofur Mangrinder</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Maxxenius" target="_blank">Maxxenius</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Mazzinor" target="_blank">Mazzinor</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Melting_Frozen_Horror" target="_blank">Melting Frozen Horror</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Outburst" target="_blank">Outburst</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Plagueroot" target="_blank">Plagueroot</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ravenous_Hunger" target="_blank">Ravenous Hunger</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Realityquake" target="_blank">Realityquake</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Rupture" target="_blank">Rupture</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Soul_of_Dragonking_Zyrtarch" target="_blank">Soul of Dragonking Zyrtarch</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Count_Of_The_Core" target="_blank">The Count Of The Core</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Enraged_Thorn_Knight" target="_blank">The Enraged Thorn Knight</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Last_Lore_Keeper" target="_blank">The Last Lore Keeper</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Sandking" target="_blank">The Sandking</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Souldespoiler" target="_blank">The Souldespoiler</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Source_Of_Corruption" target="_blank">The Source Of Corruption</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Baron_from_Below" target="_blank">The Baron from Below</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Duke_Of_The_Depths" target="_blank">The Duke Of The Depths</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_False_God" target="_blank">The False God</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Nightmare_Beast" target="_blank">The Nightmare Beast</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Scourge_of_Oblivion" target="_blank">The Scourge of Oblivion</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Time_Guardian" target="_blank">The Time Guardian</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Unarmored_Voidborn" target="_blank">The Unarmored Voidborn</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/World_Devourer" target="_blank">World Devourer</a></li>
+                                </ul>
+                            </div>
+                            <p><strong>Também obtido via:</strong> Tasks de caça e Market</p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="level2">Nível do Imbuimento:</label>
+            <select id="level2">
+                <option value="1">Nível 1 (Básico) <span class="imbu-level">25 Rope Belts</span></option>
+                <option value="2">Nível 2 (Intrincado) <span class="imbu-level">25 Rope Belts + 25 Silencer Claws</span></option>
+                <option value="3">Nível 3 (Poderoso) <span class="imbu-level">25 Rope Belts + 25 Silencer Claws + 5 Grimeleech Wings</span></option>
+            </select>
+        </div>
+        
+        <button onclick="calculate(2)">Calcular Melhor Opção</button>
+        
+        <div id="result2">
+            <h3 class="section-title">Análise de Custo</h3>
+            <div id="requirements2"></div>
+            <div id="comparison2"></div>
+            <div id="bestOption2" class="best-option"><span class="best-text"></span></div>
+            <div id="totalCost2" class="cost-summary"><span class="total-text"></span></div>
+        </div>
+    </div>
+    
+    <!-- Tab 3: Strike -->
+    <div id="strike" class="tab-content">
+        <h2><img src="https://www.tibiawiki.com.br/images/1/14/Strike_%28Dano_Cr%C3%ADtico%29.gif" class="tab-icon" alt="Strike" style="width: 48px; height: 48px;"> Strike</h2>
+        
+        <div class="price-inputs">
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/protectiveCharm.png" class="item-icon" alt="Protective Charm">
+                        Protective Charm
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Protective Charm')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="protectiveCharmPrice" value="1.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Amazon" target="_blank">Amazon</a>: Amazon Camp (Venore), Carlin Amazon Camp</li>
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Valkyrie" target="_blank">Valkyrie</a>: Amazon Camp (Venore), Carlin Amazon Camp</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/sabretooth.png" class="item-icon" alt="Sabretooth">
+                        Sabretooth
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Sabretooth')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="sabretoothPrice" value="1.500">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Mutated_Tiger" target="_blank">Mutated Tiger</a>: Zao Steppe, Tiquanda Laboratory</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/vexclawTalon.png" class="item-icon" alt="Vexclaw Talon">
+                        Vexclaw Talon
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Vexclaw Talon')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="vexclawTalonPrice" value="2.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Monstros e Locais de Caça</span>
+                        <div class="expand-content">
+                            <ul class="hunting-spots">
+                                <li><a href="https://www.tibiawiki.com.br/wiki/Vexclaw" target="_blank">Vexclaw</a>: Oramond Catacombs, Roshamuul Prison</li>
+                            </ul>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label>
+                    <span class="item-name">
+                        <img src="https://assets.service-exevopan.com/public/assets/goldToken.png" class="item-icon" alt="Gold Token">
+                        Gold Token
+                        <button class="copy-btn" onclick="copyToClipboard(event, 'Gold Token')">
+                            <span class="copy-text">Copy</span>
+                            <span class="copied-text">Copied!</span>
+                        </button>
+                    </span>
+                    <input type="text" id="tokenPrice3" value="50.000">
+                    <div class="expandable" onclick="toggleExpand(this)">
+                        <span class="expand-title">Fontes de Gold Token</span>
+                        <div class="expand-content">
+                            <div class="monster-list">
+                                <ul>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Alptramun" target="_blank">Alptramun</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ancient_Spawn_of_Morgathla" target="_blank">Ancient Spawn of Morgathla</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Anomaly" target="_blank">Anomaly</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Eradicator" target="_blank">Eradicator</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Essence_Of_Malice" target="_blank">Essence Of Malice</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ghulosh" target="_blank">Ghulosh</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Gorzindel" target="_blank">Gorzindel</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Izcandar_the_Banished" target="_blank">Izcandar the Banished</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/King_Zelos" target="_blank">King Zelos</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Kroazur" target="_blank">Kroazur</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lady_Tenebris" target="_blank">Lady Tenebris</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Lloyd" target="_blank">Lloyd</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Malofur_Mangrinder" target="_blank">Malofur Mangrinder</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Maxxenius" target="_blank">Maxxenius</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Mazzinor" target="_blank">Mazzinor</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Melting_Frozen_Horror" target="_blank">Melting Frozen Horror</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Outburst" target="_blank">Outburst</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Plagueroot" target="_blank">Plagueroot</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Ravenous_Hunger" target="_blank">Ravenous Hunger</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Realityquake" target="_blank">Realityquake</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Rupture" target="_blank">Rupture</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/Soul_of_Dragonking_Zyrtarch" target="_blank">Soul of Dragonking Zyrtarch</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Count_Of_The_Core" target="_blank">The Count Of The Core</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Enraged_Thorn_Knight" target="_blank">The Enraged Thorn Knight</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Last_Lore_Keeper" target="_blank">The Last Lore Keeper</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Sandking" target="_blank">The Sandking</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Souldespoiler" target="_blank">The Souldespoiler</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Source_Of_Corruption" target="_blank">The Source Of Corruption</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Baron_from_Below" target="_blank">The Baron from Below</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Duke_Of_The_Depths" target="_blank">The Duke Of The Depths</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_False_God" target="_blank">The False God</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Nightmare_Beast" target="_blank">The Nightmare Beast</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Scourge_of_Oblivion" target="_blank">The Scourge of Oblivion</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Time_Guardian" target="_blank">The Time Guardian</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/The_Unarmored_Voidborn" target="_blank">The Unarmored Voidborn</a></li>
+                                    <li><a href="https://www.tibiawiki.com.br/wiki/World_Devourer" target="_blank">World Devourer</a></li>
+                                </ul>
+                            </div>
+                            <p><strong>Também obtido via:</strong> Tasks de caça e Market</p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="level3">Nível do Imbuimento:</label>
+            <select id="level3">
+                <option value="1">Nível 1 (Básico) <span class="imbu-level">20 Protective Charms</span></option>
+                <option value="2">Nível 2 (Intrincado) <span class="imbu-level">20 Protective Charms + 25 Sabreteeth</span></option>
+                <option value="3">Nível 3 (Poderoso) <span class="imbu-level">20 Protective Charms + 25 Sabreteeth + 5 Vexclaw Talons</span></option>
+            </select>
+        </div>
+        
+        <button onclick="calculate(3)">Calcular Melhor Opção</button>
+        
+        <div id="result3">
+            <h3 class="section-title">Análise de Custo</h3>
+            <div id="requirements3"></div>
+            <div id="comparison3"></div>
+            <div id="bestOption3" class="best-option"><span class="best-text"></span></div>
+            <div id="totalCost3" class="cost-summary"><span class="total-text"></span></div>
+        </div>
+    </div>
+
+    <script>
+        // Função para formatar números com separador de milhar
+        function formatNumber(input) {
+            let value = input.value.replace(/[^\d]/g, '');
+            if (value.length > 0) {
+                value = parseInt(value, 10).toLocaleString('pt-BR');
+            }
+            input.value = value;
+            localStorage.setItem(input.id, value.replace(/[^\d]/g, ''));
+        }
+
+        // Função melhorada para copiar texto para área de transferência
+        function copyToClipboard(event, text) {
+            event.preventDefault();
+            const btn = event.currentTarget;
+            
+            // Adiciona classe para mostrar feedback visual
+            btn.classList.add('copied');
+            
+            // Tenta usar a API moderna de clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                // Temporizador para voltar ao estado normal
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar texto: ', err);
+                // Fallback para navegadores mais antigos
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    // Temporizador para voltar ao estado normal
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                    }, 2000);
+                } catch (e) {
+                    console.error('Fallback para copiar falhou: ', e);
+                    btn.classList.remove('copied');
+                }
+                document.body.removeChild(textarea);
+            });
+        }
+
+        // Função para validar entrada e formatar em tempo real
+        function validateAndFormat(event) {
+            const charCode = event.charCode || event.keyCode;
+            if (!(charCode === 8 || charCode === 9 || charCode === 46 || (charCode >= 48 && charCode <= 57))) {
+                event.preventDefault();
+                return;
+            }
+            setTimeout(() => {
+                formatNumber(event.target);
+            }, 10);
+        }
+
+        // Função para obter o valor numérico de um input formatado
+        function getNumericValue(inputId) {
+            const value = document.getElementById(inputId).value;
+            return parseInt(value.replace(/[^\d]/g, ''), 10) || 0;
+        }
+
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        const imbuiConfigs = {
+            1: { // Vampirism
+                1: { items: [{ name: "Vampire Teeth", quantity: 25 }], tokens: 2 },
+                2: { items: [{ name: "Vampire Teeth", quantity: 25 }, { name: "Bloody Pincers", quantity: 25 }], tokens: 4 },
+                3: { items: [{ name: "Vampire Teeth", quantity: 25 }, { name: "Bloody Pincers", quantity: 25 }, { name: "Piece of Dead Brain", quantity: 5 }], tokens: 6 }
+            },
+            2: { // Void
+                1: { items: [{ name: "Rope Belt", quantity: 25 }], tokens: 2 },
+                2: { items: [{ name: "Rope Belt", quantity: 25 }, { name: "Silencer Claws", quantity: 25 }], tokens: 4 },
+                3: { items: [{ name: "Rope Belt", quantity: 25 }, { name: "Silencer Claws", quantity: 25 }, { name: "Grimeleech Wings", quantity: 5 }], tokens: 6 }
+            },
+            3: { // Strike
+                1: { items: [{ name: "Protective Charm", quantity: 20 }], tokens: 2 },
+                2: { items: [{ name: "Protective Charm", quantity: 20 }, { name: "Sabretooth", quantity: 25 }], tokens: 4 },
+                3: { items: [{ name: "Protective Charm", quantity: 20 }, { name: "Sabretooth", quantity: 25 }, { name: "Vexclaw Talon", quantity: 5 }], tokens: 6 }
+            }
+        };
+
+        function calculate(tabNum) {
+            const prices = {
+                1: {
+                    item1: getNumericValue("vampireTeethPrice"),
+                    item2: getNumericValue("bloodyPincersPrice"),
+                    item3: getNumericValue("deadBrainPrice"),
+                    token: getNumericValue("tokenPrice1")
+                },
+                2: {
+                    item1: getNumericValue("ropeBeltPrice"),
+                    item2: getNumericValue("silencerClawsPrice"),
+                    item3: getNumericValue("grimeleechWingsPrice"),
+                    token: getNumericValue("tokenPrice2")
+                },
+                3: {
+                    item1: getNumericValue("protectiveCharmPrice"),
+                    item2: getNumericValue("sabretoothPrice"),
+                    item3: getNumericValue("vexclawTalonPrice"),
+                    token: getNumericValue("tokenPrice3")
+                }
+            };
+
+            const level = parseInt(document.getElementById(`level${tabNum}`).value);
+            const config = imbuiConfigs[tabNum][level];
+            const resultDiv = document.getElementById(`result${tabNum}`);
+            const requirementsDiv = document.getElementById(`requirements${tabNum}`);
+            const comparisonDiv = document.getElementById(`comparison${tabNum}`);
+            const bestOptionDiv = document.getElementById(`bestOption${tabNum}`);
+            const totalCostDiv = document.getElementById(`totalCost${tabNum}`);
+            
+            const combinations = [];
+            
+            let fullItemsCost = 0;
+            let fullItemsList = [];
+            config.items.forEach(item => {
+                let price;
+                if (item.name.includes("Vampire") || item.name.includes("Rope") || item.name.includes("Protective")) {
+                    price = prices[tabNum].item1;
+                } else if (item.name.includes("Bloody") || item.name.includes("Silencer") || item.name.includes("Sabretooth")) {
+                    price = prices[tabNum].item2;
+                } else {
+                    price = prices[tabNum].item3;
+                }
+                
+                const itemCost = item.quantity * price;
+                fullItemsCost += itemCost;
+                fullItemsList.push({
+                    name: item.name,
+                    quantity: item.quantity,
+                    cost: itemCost
+                });
+            });
+            
+            combinations.push({
+                type: "full_items",
+                tokens: 0,
+                items: fullItemsList,
+                totalCost: fullItemsCost,
+                description: "Comprar todos itens"
+            });
+            
+            combinations.push({
+                type: "full_tokens",
+                tokens: config.tokens,
+                items: [],
+                totalCost: config.tokens * prices[tabNum].token,
+                description: `Usar ${config.tokens} tokens (tudo)`
+            });
+            
+            if (level >= 2) {
+                const n1Tokens = imbuiConfigs[tabNum][1].tokens;
+                let hybridItems = [];
+                let hybridCost = 0;
+                
+                if (level === 2) {
+                    const item = config.items[1];
+                    const price = item.name.includes("Bloody") || item.name.includes("Silencer") || item.name.includes("Sabretooth") 
+                        ? prices[tabNum].item2 
+                        : prices[tabNum].item1;
+                    const itemCost = item.quantity * price;
+                    
+                    hybridItems.push({
+                        name: item.name,
+                        quantity: item.quantity,
+                        cost: itemCost
+                    });
+                    hybridCost = itemCost;
+                } else if (level === 3) {
+                    const itemN2 = config.items[1];
+                    const priceN2 = itemN2.name.includes("Bloody") || itemN2.name.includes("Silencer") || itemN2.name.includes("Sabretooth") 
+                        ? prices[tabNum].item2 
+                        : prices[tabNum].item1;
+                    const costN2 = itemN2.quantity * priceN2;
+                    
+                    const itemN3 = config.items[2];
+                    const priceN3 = prices[tabNum].item3;
+                    const costN3 = itemN3.quantity * priceN3;
+                    
+                    hybridItems.push({
+                        name: itemN2.name,
+                        quantity: itemN2.quantity,
+                        cost: costN2
+                    }, {
+                        name: itemN3.name,
+                        quantity: itemN3.quantity,
+                        cost: costN3
+                    });
+                    hybridCost = costN2 + costN3;
+                }
+                
+                combinations.push({
+                    type: "hybrid_n1",
+                    tokens: n1Tokens,
+                    items: hybridItems,
+                    totalCost: (n1Tokens * prices[tabNum].token) + hybridCost,
+                    description: `Usar ${n1Tokens} tokens (N1) + comprar ${hybridItems.map(i => `${i.quantity}x ${i.name}`).join(' + ')}`
+                });
+            }
+            
+            if (level === 3) {
+                const n2Tokens = imbuiConfigs[tabNum][2].tokens;
+                const itemN3 = config.items[2];
+                const priceN3 = prices[tabNum].item3;
+                const costN3 = itemN3.quantity * priceN3;
+                
+                combinations.push({
+                    type: "hybrid_n2",
+                    tokens: n2Tokens,
+                    items: [{
+                        name: itemN3.name,
+                        quantity: itemN3.quantity,
+                        cost: costN3
+                    }],
+                    totalCost: (n2Tokens * prices[tabNum].token) + costN3,
+                    description: `Usar ${n2Tokens} tokens (N1+N2) + comprar ${itemN3.quantity}x ${itemN3.name}`
+                });
+            }
+            
+            combinations.sort((a, b) => a.totalCost - b.totalCost);
+            const bestOption = combinations[0];
+            
+            let requirementsHtml = "<h4>Combinações Possíveis:</h4>";
+            
+            combinations.forEach((combo, index) => {
+                const isBest = index === 0;
+                requirementsHtml += `
+                <div class="combination ${isBest ? 'best' : ''}">
+                    <strong>Opção ${index + 1}:</strong> ${combo.description}<br>
+                    <div class="item">Tokens usados: ${combo.tokens} (${(combo.tokens * prices[tabNum].token).toLocaleString()} gold)</div>
+                    ${combo.items.length > 0 ? combo.items.map(item => `
+                    <div class="item">${item.quantity}x ${item.name} = ${item.cost.toLocaleString()} gold</div>
+                    `).join('') : ''}
+                    <div class="cost-summary">Total: ${combo.totalCost.toLocaleString()} gold</div>
+                </div>`;
+            });
+            
+            requirementsDiv.innerHTML = requirementsHtml;
+            
+            bestOptionDiv.querySelector('.best-text').innerHTML = `Melhor opção: ${bestOption.description}<br>
+                Economia de ${(combinations[1].totalCost - bestOption.totalCost).toLocaleString()} gold comparado à segunda melhor opção`;
+            
+            totalCostDiv.querySelector('.total-text').innerHTML = `Custo total: ${bestOption.totalCost.toLocaleString()} gold`;
+            resultDiv.style.display = "block";
+        }
+
+        function toggleExpand(element) {
+            element.classList.toggle("active");
+        }
+
+        // Configura os eventos de formatação para os inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configura os eventos para todos os inputs de preço
+            const priceInputs = document.querySelectorAll('input[type="text"]');
+            priceInputs.forEach(input => {
+                input.addEventListener('keypress', validateAndFormat);
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    document.execCommand('insertText', false, text.replace(/[^\d]/g, ''));
+                    formatNumber(input);
+                });
+                
+                // Carrega valores salvos e formata
+                const savedValue = localStorage.getItem(input.id);
+                if (savedValue) {
+                    input.value = parseInt(savedValue, 10).toLocaleString('pt-BR');
+                }
+            });
+            
+            // Mantém o evento de salvar valores
+            priceInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    localStorage.setItem(this.id, this.value.replace(/[^\d]/g, ''));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
